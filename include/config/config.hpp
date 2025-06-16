@@ -1,11 +1,12 @@
 #pragma once
 
 #include <cstdlib>
+#include <iostream>
 #include <string>
 
 inline std::string getEnv(const std::string& key, const std::string& default_value) {
-    std::string value = std::getenv(key.c_str());
-    return !value.empty() ? value : default_value;
+    const char* value = std::getenv(key.c_str());
+    return value ? std::string(value) : default_value;
 }
 
 struct Config {
@@ -19,4 +20,11 @@ struct Config {
 
         return config;
     };
+
+    void display() {
+        std::cout << "Configuration:" << std::endl;
+        std::cout << "Host: " << this->host << std::endl;
+        std::cout << "Port: " << this->port << std::endl;
+        std::cout << "------------------------" << std::endl;
+    }
 };

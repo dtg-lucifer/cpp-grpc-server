@@ -4,7 +4,7 @@ project(grpc-demo LANGUAGES C CXX)
 # =======================
 # Dependencies
 # =======================
-find_package(Protobuf REQUIRED)
+find_package(protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(utf8_range REQUIRED)
 
@@ -37,6 +37,13 @@ target_link_libraries(genproto_lib
         protobuf::libprotobuf
         utf8_range::utf8_range
         utf8_range::utf8_validity
+        absl::log_severity
+        absl::strings
+        absl::core_headers
+        absl::time
+        absl::synchronization
+        absl::utility
+        absl::base
 )
 
 # =======================

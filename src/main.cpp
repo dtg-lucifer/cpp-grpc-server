@@ -13,5 +13,7 @@ int main() {
         return 1;
     }
 
+    config.display();
+
     return 0;
 }
