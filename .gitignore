@@ -42,3 +42,6 @@ Thumbs.db
 
 # --- Custom scripts ---
 scripts/*.sh~
+
+# --- Environment ---
+#.env*
