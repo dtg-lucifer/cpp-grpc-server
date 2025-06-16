@@ -1,0 +1,43 @@
+# --- Build system ---
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# --- Compiled binaries ---
+*.a
+*.o
+*.so
+*.exe
+*.out
+grpc-demo
+
+# --- Protobuf generated files ---
+genproto/
+# (if you only want to ignore generated .pb.* files, use)
+# genproto/**/*.pb.*
+# genproto/**/*.grpc.pb.*
+
+# --- Clangd and tooling ---
+compile_commands.json
+compile_flags.txt
+!/build/compile_commands.json
+
+# --- Logs and system files ---
+*.log
+*.swp
+*.swo
+*.tmp
+
+# --- Editor config ---
+.vscode/
+.idea/
+*.code-workspace
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Custom scripts ---
+scripts/*.sh~
