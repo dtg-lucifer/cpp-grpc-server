@@ -49,10 +49,17 @@ target_link_libraries(genproto_lib
 # =======================
 # Application Executable
 # =======================
-file(GLOB_RECURSE APP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
-file(GLOB_RECURSE APP_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
+file(GLOB_RECURSE APP_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/server/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/service/*.cpp"
+)
+file(GLOB_RECURSE APP_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.hpp")
+
+# Add the main.cpp file explicitly since it might not be properly picked up by GLOB_RECURSE
+set(MAIN_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 
 add_executable(${PROJECT_NAME}
+    ${MAIN_SOURCE}
     ${APP_SOURCES}
     ${APP_HEADERS}
 )

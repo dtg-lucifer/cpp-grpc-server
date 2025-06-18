@@ -151,8 +151,7 @@ Status OrderService::DeleteOrder(ServerContext* ctx, const osv1::DeleteOrderRequ
     return Status::OK;
 }
 
-Status OrderService::StreamOrderUpdates(ServerContext* ctx, const osv1::StreamOrderUpdatesRequest* request,
-                                        ServerWriter<osv1::StreamOrderUpdatesResponse>* writer) {
+Status OrderService::StreamOrderUpdates(ServerContext* ctx, const osv1::StreamOrderUpdatesRequest* request, ServerWriter<osv1::StreamOrderUpdatesResponse>* writer) {
     const std::string order_id = request->order_id();  // Get the user id from the request object
     {
         std::lock_guard<std::mutex> lock(this->mutex_);
@@ -177,7 +176,7 @@ Status OrderService::StreamOrderUpdates(ServerContext* ctx, const osv1::StreamOr
     }
 
     int update_count = 0;
-    while (!ctx->IsCancelled()) {
+    while (!ctx->IsCancelled() && update_count < 5) {
         std::this_thread::sleep_for(std::chrono::seconds(5));
 
         std::lock_guard<std::mutex> lock(this->mutex_);
