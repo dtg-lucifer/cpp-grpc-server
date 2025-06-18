@@ -15,17 +15,20 @@ This project demonstrates how to implement a microservice architecture using C++
 - Real-time order status updates via server-side streaming
 - User-based order listing with filtering and pagination
 - Configurable server settings
+- Server-side interceptors for logging and request handling
 
 The demo showcases several C++17 features, gRPC service implementation patterns, and proper project organization for maintainable C++ services.
 
 ## 🌟 Features
 
-- **Modern C++ (C++17)** - Uses modern C++ features like structured bindings, std::optional, and more
+- **Modern C++ (C++17)** - Uses modern C++ features like structured bindings, smart pointers, and more
 - **gRPC Service Implementation** - Complete implementation of unary and streaming RPCs
 - **Protocol Buffers** - Efficient serialization with proto3 syntax
 - **CMake Build System** - Simple yet powerful build configuration
 - **Thread-Safe Design** - Mutex-protected shared resources for concurrent access
 - **Configuration Management** - Environment-based configuration using a clean approach
+- **Server Interceptors** - gRPC interceptors for request logging and monitoring
+- **Real-time Order Updates** - Server-side streaming to monitor order status changes
 
 ## 🧱 Project Structure
 
@@ -33,12 +36,15 @@ The demo showcases several C++17 features, gRPC service implementation patterns,
 cpp-grpc-demo/
 ├── include/                 # Header files
 │   ├── config/              # Configuration-related headers
+│   ├── interceptors/        # gRPC interceptor implementations
 │   ├── server/              # Server implementation headers
-│   └── service/             # Service implementation headers
+│   ├── service/             # Service implementation headers
+│   └── common.hpp           # Common includes and utilities
 ├── proto/                   # Protocol Buffer definitions
 │   └── order_service/       # Order service proto files
 ├── src/                     # Source files
 │   ├── main.cpp             # Entry point
+│   ├── server/              # Server implementations
 │   └── service/             # Service implementations
 ├── scripts/                 # Utility scripts
 │   ├── bootstrap.sh         # Project bootstrap script
@@ -71,14 +77,19 @@ cpp-grpc-demo/
    make bootstrap
    ```
 
-3. Build the project:
+3. Generate Protocol Buffer code:
+   ```sh
+   make proto
+   ```
+
+4. Build the project:
    ```sh
    make
    ```
 
-4. Run the service:
+5. Run the service:
    ```sh
-   ./build/bin/grpc-demo
+   make run
    ```
 
 ### Environment Variables
@@ -115,7 +126,11 @@ rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
 
 ### CreateOrder
 
-Creates a new order.
+Creates a new order. The implementation automatically:
+- Generates a unique order ID
+- Sets the initial status to PENDING
+- Calculates the total amount based on items
+- Records creation timestamp
 
 ```protobuf
 rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
@@ -131,7 +146,10 @@ rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
 
 ### StreamOrderUpdates
 
-Streams real-time updates for an order.
+Streams real-time updates for an order. The implementation simulates order progression:
+- PENDING → PROCESSING → SHIPPED → DELIVERED
+- Updates are sent every 5 seconds
+- Demonstrates server-side streaming capability
 
 ```protobuf
 rpc StreamOrderUpdates(StreamOrderUpdatesRequest) returns (stream StreamOrderUpdatesResponse);
@@ -155,6 +173,30 @@ If you modify the `.proto` files, you need to regenerate the C++ code:
 
 This script will clean the `genproto` directory and generate new files based on your updated proto definitions.
 
+## 🔍 Server Interceptors
+
+The project includes gRPC interceptors to enhance server functionality:
+
+### LoggerInterceptor
+
+A simple logging interceptor that prints method information when an RPC is called:
+
+```cpp
+class LoggerInterceptor final : public grpc::experimental::Interceptor {
+   public:
+    explicit LoggerInterceptor(grpc::experimental::ServerRpcInfo* info) {
+        std::string method = info->method();
+        std::cout << "Method called: " << method << std::endl;
+    }
+
+    void Intercept(grpc::experimental::InterceptorBatchMethods* methods) override {
+        methods->Proceed();
+    }
+};
+```
+
+Interceptors are registered when the server is created, providing a clean way to add cross-cutting concerns like logging, authentication, or metrics collection.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -174,3 +216,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [gRPC Documentation](https://grpc.io/docs/)
 - [Protocol Buffers Developer Guide](https://developers.google.com/protocol-buffers/docs/overview)
 - [CMake Documentation](https://cmake.org/documentation/)
+- [gRPC C++ Interceptors](https://grpc.io/docs/languages/cpp/interceptors/)
+- [C++17 Features](https://en.cppreference.com/w/cpp/17)
