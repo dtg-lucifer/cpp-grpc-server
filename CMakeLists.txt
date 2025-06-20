@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(grpc-demo LANGUAGES C CXX)
+project(grpc-server LANGUAGES C CXX)
 
 # =======================
 # Dependencies
@@ -19,8 +19,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Protobuf / gRPC Codegen Library
 # =======================
 set(GENPROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/genproto")
-file(GLOB_RECURSE PROTO_SRC "${GENPROTO_DIR}/*.pb.cc")
-file(GLOB_RECURSE PROTO_HEADERS "${GENPROTO_DIR}/*.pb.h")
+set(PROTO_SRC
+    "${GENPROTO_DIR}/order_service/order.pb.cc"
+    "${GENPROTO_DIR}/order_service/order.grpc.pb.cc"
+)
+set(PROTO_HEADERS
+    "${GENPROTO_DIR}/order_service/order.pb.h"
+    "${GENPROTO_DIR}/order_service/order.grpc.pb.h"
+)
 
 add_library(genproto_lib STATIC
     ${PROTO_SRC}
@@ -49,17 +55,24 @@ target_link_libraries(genproto_lib
 # =======================
 # Application Executable
 # =======================
-file(GLOB_RECURSE APP_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/server/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/service/*.cpp"
+set(APP_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/service/order_service.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/server/server.cpp"
 )
-file(GLOB_RECURSE APP_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.hpp")
 
-# Add the main.cpp file explicitly since it might not be properly picked up by GLOB_RECURSE
-set(MAIN_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" FILES ${APP_SOURCES})
 
+set(APP_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/common.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/server/server.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/service/order_service.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/config/config.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/interceptors/logger.hpp"
+)
+
+# Server
 add_executable(${PROJECT_NAME}
-    ${MAIN_SOURCE}
     ${APP_SOURCES}
     ${APP_HEADERS}
 )
@@ -67,15 +80,37 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE genproto_lib
 )
 
+# =======================
+# Client executable
+# ========================
+set(CLIENT_NAME "grpc-client")
+
+add_executable(${CLIENT_NAME}
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/client.cpp"
+)
+
+target_include_directories(${CLIENT_NAME}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_include_directories(${CLIENT_NAME}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/genproto
+)
+
+target_link_libraries(${CLIENT_NAME}
+    PRIVATE genproto_lib
+)
+
 target_compile_options(${PROJECT_NAME}
-    PRIVATE -Wall -Wextra -Wpedantic
+    PRIVATE -Wall -Wno-deprecated
 )
 
 # =======================

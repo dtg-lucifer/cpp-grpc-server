@@ -15,7 +15,7 @@ struct Config {
 
     static Config New() {
         Config config;
-        config.host = getEnv("HOST", "localhost");
+        config.host = getEnv("HOST", "0.0.0.0");
         config.port = getEnv("PORT", "8080");
 
         return config;

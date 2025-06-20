@@ -21,6 +21,11 @@ void Server::Run() {
     // Build the server and start it
     this->server_ = builder.BuildAndStart();
 
+    if (!this->server_) {
+        std::cerr << "Failed to start server at " << this->addr_ << std::endl;
+        throw std::runtime_error("Server failed to start");
+    }
+
     std::cout << "Server " << this->service_name_ << ", started at " << this->addr_ << std::endl;
 
     // Wait until it shutsdown
