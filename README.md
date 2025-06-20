@@ -1,27 +1,31 @@
 # C++ gRPC Order Service Demo
 
-A modern C++ implementation of a gRPC-based order management service, showcasing how to build robust, high-performance microservices using Protocol Buffers and the gRPC framework.
+A modern C++ implementation of a gRPC-based order management system, showcasing how to build robust, high-performance microservices using Protocol Buffers and the gRPC framework. This project includes both server and client implementations to demonstrate complete RPC communication flows.
 
 ![C++](https://img.shields.io/badge/C++-17-blue.svg)
 ![gRPC](https://img.shields.io/badge/gRPC-latest-brightgreen.svg)
 ![Protocol Buffers](https://img.shields.io/badge/Protobuf-3-orange.svg)
 ![CMake](https://img.shields.io/badge/CMake-3.20+-yellow.svg)
+![Abseil](https://img.shields.io/badge/Abseil-latest-purple.svg)
 
 ## 📘 Overview
 
-This project demonstrates how to implement a microservice architecture using C++ and gRPC. The sample service provides an order management system with the following features:
+This project demonstrates how to implement a microservice architecture using C++ and gRPC. The sample system provides an order management platform with the following features:
 
-- CRUD operations for orders
+- Complete server implementation with CRUD operations for orders
+- Client application with readable output formatting
 - Real-time order status updates via server-side streaming
 - User-based order listing with filtering and pagination
 - Configurable server settings
 - Server-side interceptors for logging and request handling
+- JSON formatting utilities for Protocol Buffer messages
 
 The demo showcases several C++17 features, gRPC service implementation patterns, and proper project organization for maintainable C++ services.
 
 ## 🌟 Features
 
 - **Modern C++ (C++17)** - Uses modern C++ features like structured bindings, smart pointers, and more
+- **Complete Client-Server Architecture** - Both client and server implementations included
 - **gRPC Service Implementation** - Complete implementation of unary and streaming RPCs
 - **Protocol Buffers** - Efficient serialization with proto3 syntax
 - **CMake Build System** - Simple yet powerful build configuration
@@ -29,6 +33,8 @@ The demo showcases several C++17 features, gRPC service implementation patterns,
 - **Configuration Management** - Environment-based configuration using a clean approach
 - **Server Interceptors** - gRPC interceptors for request logging and monitoring
 - **Real-time Order Updates** - Server-side streaming to monitor order status changes
+- **Protobuf Formatting Utilities** - Helper functions for JSON conversion and pretty-printing
+- **Abseil Integration** - Uses Google's Abseil library for enhanced functionality
 
 ## 🧱 Project Structure
 
@@ -43,7 +49,8 @@ cpp-grpc-demo/
 ├── proto/                   # Protocol Buffer definitions
 │   └── order_service/       # Order service proto files
 ├── src/                     # Source files
-│   ├── main.cpp             # Entry point
+│   ├── client.cpp           # gRPC client implementation
+│   ├── main.cpp             # Server entry point
 │   ├── server/              # Server implementations
 │   └── service/             # Service implementations
 ├── scripts/                 # Utility scripts
@@ -63,6 +70,7 @@ cpp-grpc-demo/
 - CMake 3.20 or higher
 - gRPC and Protocol Buffers development libraries
 - utf8_range library (usually bundled with Protocol Buffers)
+- Abseil libraries (for enhanced functionality)
 
 ### Building the Project
 
@@ -94,15 +102,17 @@ cpp-grpc-demo/
 
 ### Environment Variables
 
-The service can be configured via environment variables:
+The server can be configured via environment variables:
 
 - `HOST`: The hostname to bind to (default: `localhost`)
 - `PORT`: The port to listen on (default: `8080`)
 
 Example:
 ```sh
-HOST=0.0.0.0 PORT=9000 ./build/bin/grpc-demo
+HOST=0.0.0.0 PORT=9000 ./build/bin/grpc-server
 ```
+
+By default, the client connects to `0.0.0.0:8080`. If you change the server configuration, make sure to update the client connection address in the client code.
 
 ## 📋 Order Service API
 
@@ -197,6 +207,38 @@ class LoggerInterceptor final : public grpc::experimental::Interceptor {
 
 Interceptors are registered when the server is created, providing a clean way to add cross-cutting concerns like logging, authentication, or metrics collection.
 
+## 🖥️ Client Implementation
+
+The project includes a client implementation that demonstrates how to:
+
+1. Connect to the gRPC server
+2. Make RPC calls to the Order Service
+3. Process and display the response data
+
+### ProtoFormatter Helper Class
+
+The client includes a utility class with several helper methods for formatting Protocol Buffer messages:
+
+```cpp
+class ProtoFormatter {
+public:
+    // Format currency values consistently
+    static std::string FormatPrice(float price);
+
+    // Pretty print an order with indentation
+    static void PrintOrder(const osv1::Order& order, int indent = 0);
+
+    // Convert any protobuf message to JSON string
+    template <typename ProtoMessage>
+    static std::string ToJson(const ProtoMessage& message, bool pretty_print = true);
+
+    // Display any enum descriptor with all its values
+    static void PrintEnumValues(const google::protobuf::EnumDescriptor* descriptor);
+};
+```
+
+This class demonstrates how to leverage Protocol Buffers' reflection capabilities to create human-readable output and work with dynamic message content.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -218,3 +260,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [CMake Documentation](https://cmake.org/documentation/)
 - [gRPC C++ Interceptors](https://grpc.io/docs/languages/cpp/interceptors/)
 - [C++17 Features](https://en.cppreference.com/w/cpp/17)
+- [Protocol Buffers C++ API](https://developers.google.com/protocol-buffers/docs/reference/cpp)
+- [Protocol Buffers JSON Mapping](https://developers.google.com/protocol-buffers/docs/proto3#json)
+- [Abseil C++ Libraries](https://abseil.io/)
